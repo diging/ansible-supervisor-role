@@ -1,0 +1,44 @@
+- name: make sure yum is up to date
+  yum:
+    name: '*'
+    state: latest
+  become: yes
+- name: install pip
+  yum:
+    name: python2-pip
+    state: present
+  become: yes
+- name: install supervisor
+  pip:
+    name: supervisor
+  become: yes
+- name: create supervisor configuration directory
+  file:
+    path: /etc/supervisord.d
+    state: directory
+    mode: "u=rwx,g=rx,o=rx"
+    owner: root
+    group: root
+  become: yes
+- name: copy supervisord configuration
+  copy:
+    src: files/supervisord__supervisord.conf
+    dest: /etc/supervisord.conf
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  become: yes
+- name: copy supervisord init script
+  copy:
+    src: files/supervisord__supervisord
+    dest: /etc/rc.d/init.d/supervisord
+    owner: root
+    group: root
+    mode: "u=rwx,g=rx,o=rx"
+  become: yes
+- name: enable sysv supervisord service
+  service: name=supervisord enabled=yes
+  become: yes
+- name: start supervisord
+  service: name=supervisord state=started
+  become: yes
